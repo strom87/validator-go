@@ -7,23 +7,42 @@ import (
 var (
 	errMsg     map[string][]string
 	properties []*Property
+	lang       *Language
+	useJson    bool
 )
 
-func Validate(obj interface{}) (bool, map[string][]string, error) {
+func initialize(language string) {
 	errMsg = nil
+	useJson = false
+	lang = NewLanguage(language)
+}
+
+func Validate(obj interface{}) (bool, map[string][]string, error) {
+	return ValidateLang(obj, "en")
+}
+
+func ValidateJson(obj interface{}) (bool, map[string][]string, error) {
+	return ValidateJsonLang(obj, "en")
+}
+
+func ValidateLang(obj interface{}, language string) (bool, map[string][]string, error) {
+	initialize(language)
 	readObject(reflect.ValueOf(obj))
 
-	err := loopProperties()
-	if err != nil {
+	if err := loopProperties(); err != nil {
 		return false, nil, err
 	}
 
 	return isValid(), errMsg, nil
 }
 
-func ValidateJson(obj interface{}) (bool, map[string][]string, error) {
-	_, _, err := Validate(obj)
-	if err != nil {
+func ValidateJsonLang(obj interface{}, language string) (bool, map[string][]string, error) {
+	initialize(language)
+	useJson = true
+
+	readObject(reflect.ValueOf(obj))
+
+	if err := loopProperties(); err != nil {
 		return false, nil, err
 	}
 
@@ -58,42 +77,6 @@ func loopProperties() error {
 		err := validateProperty(p)
 		if err != nil {
 			return err
-		}
-	}
-
-	return nil
-}
-
-func validateProperty(p *Property) error {
-	for _, v := range p.Validations {
-		switch v.Type {
-		case "min":
-			err := min(p, v.Value)
-			if err != nil {
-				return err
-			}
-		case "max":
-			err := max(p, v.Value)
-			if err != nil {
-				return err
-			}
-		case "between":
-			err := between(p, v.Value)
-			if err != nil {
-				return err
-			}
-		case "equals":
-			err := equals(p, v.Value)
-			if err != nil {
-				return err
-			}
-		case "regexp":
-			err := regexp(p, v.Value)
-			if err != nil {
-				return err
-			}
-		case "required":
-			required(p)
 		}
 	}
 

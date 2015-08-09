@@ -17,6 +17,10 @@ func strSplit(text string, sep string) (string, string) {
 	return text[0:index], text[index+1 : length]
 }
 
+func strReplace(text string, replace string, value string) string {
+	return strings.Replace(text, replace, value, 1)
+}
+
 func strToInt(value string) (int64, error) {
 	number, err := strconv.ParseInt(value, 0, 64)
 	if err != nil {
@@ -59,6 +63,7 @@ func isValid() bool {
 }
 
 func addErrMsg(property string, message string) {
+
 	if errMsg == nil {
 		errMsg = map[string][]string{}
 	}
@@ -93,4 +98,11 @@ func getProperty(name string) (*Property, error) {
 	}
 
 	return nil, errors.New("No property " + name + "found")
+}
+
+func getPropertyJsonName(p *Property) string {
+	if p.NameJson == "" {
+		return p.Name
+	}
+	return p.NameJson
 }

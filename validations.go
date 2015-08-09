@@ -6,6 +6,42 @@ import (
 	reg "regexp"
 )
 
+func validateProperty(p *Property) error {
+	for _, v := range p.Validations {
+		switch v.Type {
+		case "min":
+			err := min(p, v.Value)
+			if err != nil {
+				return err
+			}
+		case "max":
+			err := max(p, v.Value)
+			if err != nil {
+				return err
+			}
+		case "between":
+			err := between(p, v.Value)
+			if err != nil {
+				return err
+			}
+		case "equals":
+			err := equals(p, v.Value)
+			if err != nil {
+				return err
+			}
+		case "regexp":
+			err := regexp(p, v.Value)
+			if err != nil {
+				return err
+			}
+		case "required":
+			required(p)
+		}
+	}
+
+	return nil
+}
+
 func min(p *Property, value string) error {
 	switch p.Kind {
 	case reflect.String:
@@ -14,7 +50,7 @@ func min(p *Property, value string) error {
 			return err
 		}
 		if int64(p.Value.Len()) < num {
-			addErrMsg(p.Name, "min string wrong")
+			addErrMsg(p.Name, strReplace(lang.MinString, "{min}", value))
 		}
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		num, err := strToInt(value)
@@ -22,7 +58,7 @@ func min(p *Property, value string) error {
 			return err
 		}
 		if int64(p.Value.Int()) < num {
-			addErrMsg(p.Name, "min int wrong")
+			addErrMsg(p.Name, strReplace(lang.MinNumber, "{min}", value))
 		}
 
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
@@ -31,7 +67,7 @@ func min(p *Property, value string) error {
 			return err
 		}
 		if p.Value.Uint() < num {
-			addErrMsg(p.Name, "min uint wrong")
+			addErrMsg(p.Name, strReplace(lang.MinNumber, "{min}", value))
 		}
 	case reflect.Float32, reflect.Float64:
 		num, err := strToFloat(value)
@@ -39,7 +75,7 @@ func min(p *Property, value string) error {
 			return err
 		}
 		if float64(p.Value.Float()) < num {
-			addErrMsg(p.Name, "min float wrong")
+			addErrMsg(p.Name, strReplace(lang.MinNumber, "{min}", value))
 		}
 	}
 
@@ -54,7 +90,7 @@ func max(p *Property, value string) error {
 			return err
 		}
 		if int64(p.Value.Len()) > num {
-			addErrMsg(p.Name, "max string wrong")
+			addErrMsg(p.Name, strReplace(lang.MaxString, "{max}", value))
 		}
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		num, err := strToInt(value)
@@ -62,7 +98,7 @@ func max(p *Property, value string) error {
 			return err
 		}
 		if int64(p.Value.Int()) > num {
-			addErrMsg(p.Name, "max int wrong")
+			addErrMsg(p.Name, strReplace(lang.MaxNumber, "{max}", value))
 		}
 
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
@@ -71,7 +107,7 @@ func max(p *Property, value string) error {
 			return err
 		}
 		if p.Value.Uint() > num {
-			addErrMsg(p.Name, "max uint wrong")
+			addErrMsg(p.Name, strReplace(lang.MaxNumber, "{max}", value))
 		}
 	case reflect.Float32, reflect.Float64:
 		num, err := strToFloat(value)
@@ -79,7 +115,7 @@ func max(p *Property, value string) error {
 			return err
 		}
 		if float64(p.Value.Float()) > num {
-			addErrMsg(p.Name, "max float wrong")
+			addErrMsg(p.Name, strReplace(lang.MaxNumber, "{max}", value))
 		}
 	}
 
@@ -88,6 +124,11 @@ func max(p *Property, value string) error {
 
 func between(p *Property, value string) error {
 	minStr, maxStr := splitAtt(value)
+
+	strError := strReplace(lang.BetweenString, "{min}", minStr)
+	strError = strReplace(strError, "{max}", maxStr)
+	numError := strReplace(lang.BetweenNumber, "{min}", minStr)
+	numError = strReplace(numError, "{max}", maxStr)
 
 	switch p.Kind {
 	case reflect.String:
@@ -101,7 +142,7 @@ func between(p *Property, value string) error {
 		}
 		len := int64(p.Value.Len())
 		if len <= min || len >= max {
-			addErrMsg(p.Name, "between string")
+			addErrMsg(p.Name, strError)
 		}
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		min, err := strToInt(minStr)
@@ -114,7 +155,7 @@ func between(p *Property, value string) error {
 		}
 		len := int64(p.Value.Int())
 		if len <= min || len >= max {
-			addErrMsg(p.Name, "between int")
+			addErrMsg(p.Name, numError)
 		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		min, err := strToUint(minStr)
@@ -127,7 +168,7 @@ func between(p *Property, value string) error {
 		}
 
 		if p.Value.Uint() <= min || p.Value.Uint() >= max {
-			addErrMsg(p.Name, "between uint")
+			addErrMsg(p.Name, numError)
 		}
 	case reflect.Float32, reflect.Float64:
 		min, err := strToFloat(minStr)
@@ -140,7 +181,7 @@ func between(p *Property, value string) error {
 		}
 		len := float64(p.Value.Float())
 		if len <= min || len >= max {
-			addErrMsg(p.Name, "between float")
+			addErrMsg(p.Name, numError)
 		}
 	}
 
@@ -153,22 +194,31 @@ func equals(p *Property, value string) error {
 		return err
 	}
 
+	strError := lang.Equals
+	if useJson {
+		strError = strReplace(strError, "{prop1}", getPropertyJsonName(p))
+		strError = strReplace(strError, "{prop2}", getPropertyJsonName(property))
+	} else {
+		strError = strReplace(strError, "{prop1}", p.Name)
+		strError = strReplace(strError, "{prop2}", property.Name)
+	}
+
 	switch p.Kind {
 	case reflect.String:
 		if p.Value.String() != property.Value.String() {
-			addErrMsg(p.Name, "same string error")
+			addErrMsg(p.Name, strError)
 		}
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		if int64(p.Value.Int()) != int64(property.Value.Int()) {
-			addErrMsg(p.Name, "same int error")
+			addErrMsg(p.Name, strError)
 		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		if p.Value.Uint() != property.Value.Uint() {
-			addErrMsg(p.Name, "same uint error")
+			addErrMsg(p.Name, strError)
 		}
 	case reflect.Float32, reflect.Float64:
 		if float64(p.Value.Float()) != float64(property.Value.Float()) {
-			addErrMsg(p.Name, "same float error")
+			addErrMsg(p.Name, strError)
 		}
 	}
 
@@ -186,7 +236,7 @@ func regexp(p *Property, value string) error {
 	}
 
 	if !r.MatchString(p.Value.String()) {
-		addErrMsg(p.Name, "regexp error")
+		addErrMsg(p.Name, lang.Regexp)
 	}
 
 	return nil
@@ -196,19 +246,19 @@ func required(p *Property) {
 	switch p.Kind {
 	case reflect.String:
 		if int64(p.Value.Len()) <= 0 {
-			addErrMsg(p.Name, "required string wrong")
+			addErrMsg(p.Name, lang.Required)
 		}
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		if int64(p.Value.Int()) <= 0 {
-			addErrMsg(p.Name, "required int wrong")
+			addErrMsg(p.Name, lang.Required)
 		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		if p.Value.Uint() <= 0 {
-			addErrMsg(p.Name, "required uint wrong")
+			addErrMsg(p.Name, lang.Required)
 		}
 	case reflect.Float32, reflect.Float64:
 		if float64(p.Value.Float()) <= 0.0 {
-			addErrMsg(p.Name, "required float wrong")
+			addErrMsg(p.Name, lang.Required)
 		}
 	}
 }

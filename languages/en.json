@@ -1,0 +1,11 @@
+{
+	"regexp": "Invalid value",
+	"equals": "The value of {prop1} and {prop2} dose not match.",
+	"required": "The value is required",
+	"min_string": "Must be a minimum of {min} characters.",
+	"min_number": "Must be a minimum value of {min}.",
+	"max_string": "Must be a maximum of {max} characters.",
+	"max_number": "Must be a maximum value of {max}.",
+	"between_string": "Must have a length between {min} and {max}.",
+	"between_number": "Must be a value between {min} and {max}."
+}
