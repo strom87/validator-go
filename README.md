@@ -59,6 +59,14 @@ func Validate(obj interface{}) (bool, map[string][]string, error) {
 func ValidateJson(obj interface{}) (bool, map[string][]string, error) {
     // Returns errorMessages with the names of the json tags of the struct
 }
+
+func ValidateLang(obj interface{}, language string) (bool, map[string][]string, error) {
+    // With language parameter to change language on error messages
+}
+
+func ValidateJsonLang(obj interface{}, language string) (bool, map[string][]string, error) {
+    // Json with language parameter to change language on error messages
+}
 ~~~
 
 ### Json example
@@ -77,5 +85,22 @@ func main() {
     if isValid, errorMessages, err := validator.ValidateJson(&example); !isValid {
         // Handle errors
     }
+}
+~~~
+
+### Languages
+In the folder "lang" all the translation files is held. If support for a new language is supported just add a new json language file in this map. The name of the file is the key to choose the language.  
+Say we would like to add a language file and call it "my_language.json", we would just create this file in the lang folder.   
+Then just coppy all the keys from the "en.json" language file and translate them.
+##### Use new language file
+~~~ go
+if isValid, errorMessages, err := validator.ValidateLang(&structObj, "my_language"); !isValid {
+    // Handle errors
+}
+
+// or
+
+if isValid, errorMessages, err := validator.ValidateJsonLang(&structObj, "my_language"); !isValid {
+    // Handle errors
 }
 ~~~
