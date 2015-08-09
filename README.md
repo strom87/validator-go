@@ -10,6 +10,7 @@ $ go get github.com/strom87/validator-go
 import (
     "github.com/strom87/validator-go"
 )
+
 type Example struct {
     ValueOne     int     `validator:"between:3,8"`
     ValueTwo     float64 `validator:"min:5|max:10"`
