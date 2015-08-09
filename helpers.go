@@ -2,6 +2,7 @@ package validator
 
 import (
 	"strconv"
+	"strings"
 )
 
 func strToInt(value string) (int64, error) {
@@ -26,6 +27,11 @@ func strToUint(value string) (uint64, error) {
 		return 0, err
 	}
 	return number, nil
+}
+
+func splitAtt(value string) (string, string) {
+	val := strings.Split(value, ",")
+	return val[0], val[1]
 }
 
 func addErrMsg(property string, message string) {
