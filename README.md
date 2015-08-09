@@ -39,16 +39,18 @@ func main() {
         Validates that two properties have the same value
     
 ### Multiple validation types
-You can have multiple validation types on the same property, just separeate each propery with character | (pipe) 
+You can have multiple validation types on the same property, just separeate each propery with character | (pipe)   
     Example: `validator:"required|min:2|max:20"`
     
 ### Functions
 ~~~ go
-func Validate(obj interface{}) (bool, map[string][]string, error)
+func Validate(obj interface{}) (bool, map[string][]string, error) {
     // Returns errorMessages with the names of the properties of the struct
+}
 
-func ValidateJson(obj interface{}) (bool, map[string][]string, error)
+func ValidateJson(obj interface{}) (bool, map[string][]string, error) {
     // Returns errorMessages with the names of the json tags of the struct
+}
 ~~~
 
 ### Json example
