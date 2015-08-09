@@ -1,7 +1,9 @@
 package validator
 
 import (
+	"errors"
 	"reflect"
+	reg "regexp"
 )
 
 func min(p *Property, value string) error {
@@ -168,6 +170,23 @@ func equals(p *Property, value string) error {
 		if float64(p.Value.Float()) != float64(property.Value.Float()) {
 			addErrMsg(p.Name, "same float error")
 		}
+	}
+
+	return nil
+}
+
+func regexp(p *Property, value string) error {
+	if p.Kind != reflect.String {
+		return errors.New("Regexp validation only handles string, invalid type used")
+	}
+
+	r, err := reg.Compile(value)
+	if err != nil {
+		return err
+	}
+
+	if !r.MatchString(p.Value.String()) {
+		addErrMsg(p.Name, "regexp error")
 	}
 
 	return nil

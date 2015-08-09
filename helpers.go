@@ -6,6 +6,17 @@ import (
 	"strings"
 )
 
+func strSplit(text string, sep string) (string, string) {
+	length := len(text)
+	index := strings.Index(text, sep)
+
+	if index == -1 {
+		return text, ""
+	}
+
+	return text[0:index], text[index+1 : length]
+}
+
 func strToInt(value string) (int64, error) {
 	number, err := strconv.ParseInt(value, 0, 64)
 	if err != nil {

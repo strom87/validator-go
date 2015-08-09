@@ -87,6 +87,11 @@ func validateProperty(p *Property) error {
 			if err != nil {
 				return err
 			}
+		case "regexp":
+			err := regexp(p, v.Value)
+			if err != nil {
+				return err
+			}
 		case "required":
 			required(p)
 		}

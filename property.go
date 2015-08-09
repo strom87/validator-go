@@ -30,12 +30,8 @@ func (p *Property) addValidations(field reflect.StructField) {
 
 	validations := strings.Split(string(tag), "|")
 	for _, v := range validations {
-		val := strings.Split(v, ":")
-		if len(val) > 1 {
-			p.Validations = append(p.Validations, ValidationType{val[0], val[1]})
-		} else {
-			p.Validations = append(p.Validations, ValidationType{val[0], ""})
-		}
+		a, b := strSplit(v, ":")
+		p.Validations = append(p.Validations, ValidationType{a, b})
 	}
 }
 
