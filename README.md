@@ -10,6 +10,7 @@ $ go get github.com/strom87/validator-go
 import (
     "github.com/strom87/validator-go"
 )
+
 type Example struct {
     ValueOne     int     `validator:"between:3,8"`
     ValueTwo     float64 `validator:"min:5|max:10"`
@@ -28,18 +29,22 @@ func main() {
 
 ### Types
     min
-        Minimum length of a string or value of a number
+        Minimum length of a string or value of a number.
+        
     max
-        Maximum length of a string or value of a number
+        Maximum length of a string or value of a number.
+        
     between
-        Length of a string between two numbers or a numberic value between two numbers
+        Length of a string between two numbers or a numberic value between two numbers.
+        
     required
-        Checks that the length of a string is longer then zero or that a number
-        is greater than zero
+        Checks that the length of a string is longer then zero or that a number is greater than zero.
+        
     equals
-        Validates that two properties have the same value
+        Validates that two properties have the same value.
+        
     regexp
-        Runs regexp agains a string, only work with string values
+        Runs regexp agains a string, only work with string values.
     
 ### Multiple validation types
 You can have multiple validation types on the same property, just separeate each propery with character | (pipe)   
@@ -53,6 +58,14 @@ func Validate(obj interface{}) (bool, map[string][]string, error) {
 
 func ValidateJson(obj interface{}) (bool, map[string][]string, error) {
     // Returns errorMessages with the names of the json tags of the struct
+}
+
+func ValidateLang(obj interface{}, language string) (bool, map[string][]string, error) {
+    // With language parameter to change language on error messages
+}
+
+func ValidateJsonLang(obj interface{}, language string) (bool, map[string][]string, error) {
+    // Json with language parameter to change language on error messages
 }
 ~~~
 
@@ -72,5 +85,22 @@ func main() {
     if isValid, errorMessages, err := validator.ValidateJson(&example); !isValid {
         // Handle errors
     }
+}
+~~~
+
+### Languages
+In the folder "lang" all the translation files is held. If support for a new language is supported just add a new json language file in this map. The name of the file is the key to choose the language.  
+Say we would like to add a language file and call it "my_language.json", we would just create this file in the lang folder.   
+Then just coppy all the keys from the "en.json" language file and translate them.
+##### Use new language file
+~~~ go
+if isValid, errorMessages, err := validator.ValidateLang(&structObj, "my_language"); !isValid {
+    // Handle errors
+}
+
+// or
+
+if isValid, errorMessages, err := validator.ValidateJsonLang(&structObj, "my_language"); !isValid {
+    // Handle errors
 }
 ~~~
