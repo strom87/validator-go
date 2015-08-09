@@ -29,18 +29,22 @@ func main() {
 
 ### Types
     min
-        Minimum length of a string or value of a number
+        Minimum length of a string or value of a number.
+        
     max
-        Maximum length of a string or value of a number
+        Maximum length of a string or value of a number.
+        
     between
-        Length of a string between two numbers or a numberic value between two numbers
+        Length of a string between two numbers or a numberic value between two numbers.
+        
     required
-        Checks that the length of a string is longer then zero or that a number
-        is greater than zero
+        Checks that the length of a string is longer then zero or that a number is greater than zero.
+        
     equals
-        Validates that two properties have the same value
+        Validates that two properties have the same value.
+        
     regexp
-        Runs regexp agains a string, only work with string values
+        Runs regexp agains a string, only work with string values.
     
 ### Multiple validation types
 You can have multiple validation types on the same property, just separeate each propery with character | (pipe)   
