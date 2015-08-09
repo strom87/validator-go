@@ -1,5 +1,6 @@
 # Validator-GO
-Validates properties for structs.
+An easy and simple way to validate property values in strucs for golang.   
+Can be used to validate incoming request data to ensure that all the user data is correct.
 
 ```sh
 $ go get github.com/strom87/validator-go
