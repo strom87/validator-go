@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 )
@@ -34,6 +35,18 @@ func splitAtt(value string) (string, string) {
 	return val[0], val[1]
 }
 
+func addProperties(p *Property) {
+	if properties == nil {
+		properties = []*Property{p}
+	} else {
+		properties = append(properties, p)
+	}
+}
+
+func isValid() bool {
+	return errMsg == nil
+}
+
 func addErrMsg(property string, message string) {
 	if errMsg == nil {
 		errMsg = map[string][]string{}
@@ -44,4 +57,29 @@ func addErrMsg(property string, message string) {
 	} else {
 		errMsg[property] = append(errMsg[property], message)
 	}
+}
+
+func propertyNamesToJson() {
+	if errMsg == nil {
+		return
+	}
+
+	for _, p := range properties {
+		if errMsg[p.Name] == nil || p.NameJson == "" {
+			continue
+		}
+
+		errMsg[p.NameJson] = errMsg[p.Name]
+		delete(errMsg, p.Name)
+	}
+}
+
+func getProperty(name string) (*Property, error) {
+	for _, p := range properties {
+		if p.Name == name {
+			return p, nil
+		}
+	}
+
+	return nil, errors.New("No property " + name + "found")
 }

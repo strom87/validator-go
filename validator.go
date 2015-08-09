@@ -1,23 +1,38 @@
 package validator
 
 import (
-	"log"
 	"reflect"
 )
 
 var (
-	errMsg map[string][]string
+	errMsg     map[string][]string
+	properties []*Property
 )
 
-func Validate(obj interface{}) (map[string][]string, error) {
-	err := readObject(reflect.ValueOf(obj))
+func Validate(obj interface{}) (bool, map[string][]string, error) {
+	errMsg = nil
+	readObject(reflect.ValueOf(obj))
 
-	log.Println(errMsg)
+	err := loopProperties()
+	if err != nil {
+		return false, nil, err
+	}
 
-	return errMsg, err
+	return isValid(), errMsg, nil
 }
 
-func readObject(obj reflect.Value) error {
+func ValidateJson(obj interface{}) (bool, map[string][]string, error) {
+	_, _, err := Validate(obj)
+	if err != nil {
+		return false, nil, err
+	}
+
+	propertyNamesToJson()
+
+	return isValid(), errMsg, nil
+}
+
+func readObject(obj reflect.Value) {
 	if obj.Kind() == reflect.Ptr {
 		obj = obj.Elem()
 	}
@@ -32,12 +47,17 @@ func readObject(obj reflect.Value) error {
 			for n := 0; n < field.Len(); n++ {
 				readObject(field.Index(n))
 			}
-
 		default:
-			err := validateProperty(NewProperty(field, obj.Type().Field(i)))
-			if err != nil {
-				return err
-			}
+			addProperties(NewProperty(field, obj.Type().Field(i)))
+		}
+	}
+}
+
+func loopProperties() error {
+	for _, p := range properties {
+		err := validateProperty(p)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -62,6 +82,13 @@ func validateProperty(p *Property) error {
 			if err != nil {
 				return err
 			}
+		case "equals":
+			err := equals(p, v.Value)
+			if err != nil {
+				return err
+			}
+		case "required":
+			required(p)
 		}
 	}
 
