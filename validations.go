@@ -10,28 +10,23 @@ func validateProperty(p *Property) error {
 	for _, v := range p.Validations {
 		switch v.Type {
 		case "min":
-			err := min(p, v.Value)
-			if err != nil {
+			if err := min(p, v.Value); err != nil {
 				return err
 			}
 		case "max":
-			err := max(p, v.Value)
-			if err != nil {
+			if err := max(p, v.Value); err != nil {
 				return err
 			}
 		case "between":
-			err := between(p, v.Value)
-			if err != nil {
+			if err := between(p, v.Value); err != nil {
 				return err
 			}
 		case "equals":
-			err := equals(p, v.Value)
-			if err != nil {
+			if err := equals(p, v.Value); err != nil {
 				return err
 			}
 		case "regexp":
-			err := regexp(p, v.Value)
-			if err != nil {
+			if err := regexp(p, v.Value); err != nil {
 				return err
 			}
 		case "required":

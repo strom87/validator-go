@@ -14,6 +14,7 @@ var (
 func initialize(language string) {
 	errMsg = nil
 	useJson = false
+	properties = nil
 	lang = NewLanguage(language)
 }
 
@@ -28,7 +29,6 @@ func ValidateJson(obj interface{}) (bool, map[string][]string, error) {
 func ValidateLang(obj interface{}, language string) (bool, map[string][]string, error) {
 	initialize(language)
 	readObject(reflect.ValueOf(obj))
-
 	if err := loopProperties(); err != nil {
 		return false, nil, err
 	}
@@ -41,13 +41,11 @@ func ValidateJsonLang(obj interface{}, language string) (bool, map[string][]stri
 	useJson = true
 
 	readObject(reflect.ValueOf(obj))
-
 	if err := loopProperties(); err != nil {
 		return false, nil, err
 	}
 
 	propertyNamesToJson()
-
 	return isValid(), errMsg, nil
 }
 
@@ -74,8 +72,7 @@ func readObject(obj reflect.Value) {
 
 func loopProperties() error {
 	for _, p := range properties {
-		err := validateProperty(p)
-		if err != nil {
+		if err := validateProperty(p); err != nil {
 			return err
 		}
 	}

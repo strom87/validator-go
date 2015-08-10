@@ -22,24 +22,17 @@ func NewProperty(value reflect.Value, field reflect.StructField) *Property {
 
 func (p *Property) addValidations(field reflect.StructField) {
 	p.Validations = []ValidationType{}
-	tag := field.Tag.Get("validator")
-
-	if tag == "" {
-		return
-	}
-
-	validations := strings.Split(string(tag), "|")
-	for _, v := range validations {
-		a, b := strSplit(v, ":")
-		p.Validations = append(p.Validations, ValidationType{a, b})
+	if tag := field.Tag.Get("validator"); tag != "" {
+		validations := strings.Split(string(tag), "|")
+		for _, v := range validations {
+			a, b := strSplit(v, ":")
+			p.Validations = append(p.Validations, ValidationType{a, b})
+		}
 	}
 }
 
 func (p *Property) setJsonName(field reflect.StructField) {
-	tag := field.Tag.Get("json")
-	if tag == "" {
-		return
+	if tag := field.Tag.Get("json"); tag != "" {
+		p.NameJson = tag
 	}
-
-	p.NameJson = tag
 }

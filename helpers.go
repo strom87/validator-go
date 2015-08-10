@@ -8,13 +8,11 @@ import (
 
 func strSplit(text string, sep string) (string, string) {
 	length := len(text)
-	index := strings.Index(text, sep)
-
-	if index == -1 {
+	if index := strings.Index(text, sep); index == -1 {
 		return text, ""
+	} else {
+		return text[0:index], text[index+1 : length]
 	}
-
-	return text[0:index], text[index+1 : length]
 }
 
 func strReplace(text string, replace string, value string) string {
@@ -63,7 +61,6 @@ func isValid() bool {
 }
 
 func addErrMsg(property string, message string) {
-
 	if errMsg == nil {
 		errMsg = map[string][]string{}
 	}
@@ -81,12 +78,10 @@ func propertyNamesToJson() {
 	}
 
 	for _, p := range properties {
-		if errMsg[p.Name] == nil || p.NameJson == "" {
-			continue
+		if errMsg[p.Name] != nil && p.NameJson != "" {
+			errMsg[p.NameJson] = errMsg[p.Name]
+			delete(errMsg, p.Name)
 		}
-
-		errMsg[p.NameJson] = errMsg[p.Name]
-		delete(errMsg, p.Name)
 	}
 }
 
