@@ -16,6 +16,8 @@ type Example struct {
     ValueOne     int     `validator:"between:3,8"`
     ValueTwo     float64 `validator:"min:5|max:10"`
     ValueThree   string  `validator:"regexp:ca[a-z]{2}e"`
+    ValueFour    string  `validator:"alpha"`
+    Email        string  `validator:"email"`
     Password     string  `validator:"required|equals:ConfPassword"`
     ConfPassword string  
 }
@@ -43,9 +45,16 @@ func main() {
         
     equals
         Validates that two properties have the same value.
-        
+
+### Only for strings
     regexp
-        Runs regexp agains a string, only work with string values.
+        Runs regexp against strings.
+        
+    email
+        Validates that the string is a correct email address.
+    
+    alpha
+        Validates that the string only contains alphabetic characters.
     
 ### Multiple validation types
 You can have multiple validation types on the same property, just separeate each propery with character | (pipe)   
