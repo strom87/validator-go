@@ -29,6 +29,14 @@ func validateProperty(p *Property) error {
 			if err := regexp(p, v.Value); err != nil {
 				return err
 			}
+		case "email":
+			if err := email(p); err != nil {
+				return err
+			}
+		case "alpha":
+			if err := alpha(p); err != nil {
+				return err
+			}
 		case "required":
 			required(p)
 		}
@@ -256,4 +264,38 @@ func required(p *Property) {
 			addErrMsg(p.Name, lang.Required)
 		}
 	}
+}
+
+func email(p *Property) error {
+	if p.Kind != reflect.String {
+		return errors.New("Email validation only handles string, invalid type used")
+	}
+
+	r, err := reg.Compile(`.*@.*(\.[A-Za-z]{2}[A-Za-z]*)$`)
+	if err != nil {
+		return err
+	}
+
+	if !r.MatchString(p.Value.String()) {
+		addErrMsg(p.Name, lang.Email)
+	}
+
+	return nil
+}
+
+func alpha(p *Property) error {
+	if p.Kind != reflect.String {
+		return errors.New("Alpha validation only handles string, invalid type used")
+	}
+
+	r, err := reg.Compile(`^[\p{L}]+$`)
+	if err != nil {
+		return err
+	}
+
+	if !r.MatchString(p.Value.String()) {
+		addErrMsg(p.Name, lang.Alpha)
+	}
+
+	return nil
 }

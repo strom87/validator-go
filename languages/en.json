@@ -1,4 +1,6 @@
 {
+	"email": "Not a valid email address",
+	"alpha": "Only alphabetic characters allowed",
 	"regexp": "Invalid value",
 	"equals": "The value of {prop1} and {prop2} dose not match.",
 	"required": "The value is required",

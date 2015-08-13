@@ -12,6 +12,8 @@ const (
 )
 
 type Language struct {
+	Alpha         string `json:"alpha"`
+	Email         string `json:"email"`
 	Equals        string `json:"equals"`
 	Regexp        string `json:"regexp"`
 	Required      string `json:"required"`

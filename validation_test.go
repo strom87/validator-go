@@ -50,6 +50,16 @@ type regexpTestStruct struct {
 	expected int
 }
 
+type emailTestStruct struct {
+	v1       string `validator:"email"`
+	expected int
+}
+
+type alphaTestStruct struct {
+	v1       string `validator:"alpha"`
+	expected int
+}
+
 func resetValuesForTest() {
 	errMsg = nil
 	properties = nil
@@ -146,7 +156,7 @@ func TestEqualsF(t *testing.T) {
 func TestRegexpF(t *testing.T) {
 	initialize("en")
 	values := []regexpTestStruct{
-		{"12&%€Ab", 0},
+		{"12&?$Ab", 0},
 		{"12&!=a2", 1},
 		{"12ab", 0},
 		{"ab12", 1},
@@ -154,6 +164,47 @@ func TestRegexpF(t *testing.T) {
 
 	for _, v := range values {
 		testRunner(v, regexp)
+		if len(errMsg) != v.expected {
+			t.Error("Expected", v.expected, "got", len(errMsg))
+		}
+		resetValuesForTest()
+	}
+}
+
+func TestEmailF(t *testing.T) {
+	initialize("en")
+	values := []emailTestStruct{
+		{"email.address@test.com", 0},
+		{"email.addresstest.org", 1},
+		{"email.address@test", 1},
+		{"email.address21@some.stuff.nu", 0},
+	}
+
+	for _, v := range values {
+		testRunner(v, func(p *Property, value string) error {
+			return email(p)
+		})
+		if len(errMsg) != v.expected {
+			t.Error("Expected", v.expected, "got", len(errMsg))
+		}
+		resetValuesForTest()
+	}
+}
+
+func TestAlphaF(t *testing.T) {
+	initialize("en")
+	values := []alphaTestStruct{
+		{"abcdefgåäö", 0},
+		{"XYZPÅlkfäs", 0},
+		{"1234567890", 1},
+		{"ab2sqwerty", 1},
+		{"ab#sq&er!t", 1},
+	}
+
+	for _, v := range values {
+		testRunner(v, func(p *Property, value string) error {
+			return alpha(p)
+		})
 		if len(errMsg) != v.expected {
 			t.Error("Expected", v.expected, "got", len(errMsg))
 		}
