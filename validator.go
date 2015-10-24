@@ -60,10 +60,6 @@ func readObject(obj reflect.Value) {
 		switch field.Kind() {
 		case reflect.Struct:
 			readObject(field)
-		case reflect.Slice:
-			for n := 0; n < field.Len(); n++ {
-				readObject(field.Index(n))
-			}
 		default:
 			addProperties(NewProperty(field, obj.Type().Field(i)))
 		}
